@@ -1,0 +1,49 @@
+version: "3.9"
+
+# WIP!
+
+services:
+  database:
+    image: postgres:13.4-alpine
+    restart: always
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=TODO
+      
+  backend:
+    image: ./backend/
+    restart: always
+    ports:
+      - "YY:XX"
+    depends_on:
+      - database
+      
+  frontend:
+    build: ./frontend/
+    restart: always
+    ports:
+      - "YY:XX"
+    depends_on:
+      - backend
+
+# optional
+
+  reverse-proxy:
+    image: traefik:v2.5
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
